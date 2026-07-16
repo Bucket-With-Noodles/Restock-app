@@ -235,7 +235,7 @@ function renderFridges(locationKey) {
         let li = document.createElement("li");
         li.className = 'fridge-item-btn';
 
-        // Use innerHTML to create the text AND a tiny delete button inside the li
+        //innerHTML is used to create the text AND a tiny delete button inside the li
         li.innerHTML = `
             <span>${fridge.name}</span>
             <button class="btn-delete" style="float: right; color: red;">X</button>
@@ -246,11 +246,11 @@ function renderFridges(locationKey) {
             openFridge(fridge);
         });
 
-        // NEW: Grab the specific delete button we just created inside this li
+        // NEW: Grab the specific delete button
         const deleteBtn = li.querySelector('.btn-delete');
 
         deleteBtn.addEventListener('click', (event) => {
-            // STOP THE BUBBLE! This prevents the 'li' click listener from running
+            // his prevents the 'li' click listener from running
             event.stopPropagation();
 
             // Confirm they actually want to delete it
@@ -321,7 +321,7 @@ function openFridge(fridge) {
         const deleteBtn = li.querySelector('.btn-delete-item');
         deleteBtn.addEventListener('click', (event) => {
 
-            // STOP THE BUBBLE! (Prevents adding the item to the shopping list)
+            //Prevents adding the item to the shopping list
             event.stopPropagation();
 
             if (confirm(`Delete
@@ -359,7 +359,6 @@ function renderCurrentList() {
         li.textContent = restock.quantity + "x " + restock.name;
         li.className = 'fridge-item-btn';
 
-        // --- YOUR TURN: REMOVE ITEMS ---
         li.addEventListener('click', () => {
 
             // 1. Subtract 1 from the quantity
