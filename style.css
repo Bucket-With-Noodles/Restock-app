@@ -120,3 +120,15 @@ main#app-content {
 .item-list {
     list-style: none;
 }
+
+.fridge-item-btn {
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

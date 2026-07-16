@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Shop Restock</title>
+    <link rel="manifest" href="manifest.json">
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -27,6 +28,10 @@
 <!-- SCREEN 2: Main App Shell -->
 <!-- Hidden until a location is clicked -->
 <div id="screen-app" class="screen hidden">
+
+    <button id="btn-switch-location" style="margin-bottom: 15px; padding: 10px; background-color: #6c757d; color: white; border: none; border-radius: 5px; width: 100%; font-size: 16px;">
+        🔙 Switch Location
+    </button>
 
     <!-- Top Bar -->
     <header>
@@ -66,6 +71,7 @@
             <ul id="master-list" class="item-list">
                 <!-- JavaScript will inject the selected items here -->
             </ul>
+            <button id="btn-finish-list" class="btn-location" style="margin-top: 20px; width: 100%;">Finish & Save to History</button>
         </section>
 
         <!-- VIEW D: History (Hidden initially) -->
