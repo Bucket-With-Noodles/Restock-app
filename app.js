@@ -45,7 +45,65 @@ const btnFinishList = document.getElementById('btn-finish-list');
 
 const btnSwitchLocation = document.getElementById('btn-switch-location');
 
+const btnExportData = document.getElementById('btn-export-data');
+const btnImportData = document.getElementById('btn-import-data');
+
 //3. Event Listeners
+// --- EXPORT LOGIC ---
+btnExportData.addEventListener('click', () => {
+    // 1. Turn our inventory data into a beautifully formatted JSON string
+    const dataStr = JSON.stringify(inventoryData, null, 2);
+
+    // 2. Create a "Blob" (a virtual file in the browser's memory)
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    // 3. Create a fake link, click it to trigger the download, and destroy it
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ShopLayout_${new Date().toLocaleDateString().replace(/\//g, '-')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+
+// --- IMPORT LOGIC ---
+btnImportData.addEventListener('change', (event) => {
+    // 1. Get the file the user selected
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 2. Use the browser's built-in FileReader to read the text inside
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            // Try to parse the text back into a JavaScript Object
+            const importedData = JSON.parse(e.target.result);
+
+            // Safety Check: Make sure the file actually has aarschot and mechelen arrays
+            if (importedData.aarschot && importedData.mechelen) {
+
+                // Overwrite our app's data with the imported data
+                inventoryData = importedData;
+
+                // Save it permanently to the phone
+                saveInventoryLocally();
+
+                alert("Layout successfully imported! Your fridges are ready.");
+            } else {
+                alert("Error: This doesn't look like a valid Shop Layout file.");
+            }
+        } catch (err) {
+            alert("Error reading file. Make sure it is a valid .json file.");
+        }
+
+        // Reset the file input so they can import again if they made a mistake
+        event.target.value = "";
+    };
+
+    // Start reading the file
+    reader.readAsText(file);
+});
+
     locationButtons.forEach(button => {
         button.addEventListener('click', (event) => {
 

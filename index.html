@@ -22,6 +22,18 @@
         <h1>Select Location</h1>
         <button class="btn-location" data-location="aarschot">Aarschot</button>
         <button class="btn-location" data-location="mechelen">Mechelen</button>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd;">
+            <h4 style="text-align: center; color: #555;">⚙️ App Data</h4>
+
+            <button id="btn-export-data" style="margin-bottom: 10px; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; width: 100%; font-size: 16px;">
+                📤 Export Layout to File
+            </button>
+
+            <label for="btn-import-data" style="display: block; background-color: #ffc107; color: black; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                📥 Import Layout File
+            </label>
+            <input type="file" id="btn-import-data" accept=".json" style="display: none;">
+        </div>
     </div>
 </div>
 
