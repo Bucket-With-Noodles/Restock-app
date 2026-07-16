@@ -432,13 +432,19 @@ function openFridge(fridge) {
         let li = document.createElement("li");
         li.className = 'fridge-item-btn';
 
+        li.style.display = 'flex';
+        li.style.justifyContent = 'space-between';
+        li.style.alignItems = 'center';
+
         // Display the VAT next to the price (with a fallback if older items don't have it)
         const vatDisplay = item.vat ? ` (${item.vat}%)` : "";
 
         li.innerHTML = `
-            <span>${item.name} - €${item.price}${vatDisplay}</span>
-            <div style="float: right;">
-                <button class="btn-edit-item" style="color: #007bff; border: none; background: none; font-size: 16px; margin-right: 15px; padding: 5px;">✏️</button>
+            <span style="flex-grow: 1; padding-right: 10px; word-break: break-word;">
+                ${item.name} - €${item.price}${vatDisplay}
+            </span>
+            <div style="display: flex; align-items: center; flex-shrink: 0;">
+                <button class="btn-edit-item" style="color: #007bff; border: none; background: none; font-size: 16px; margin-right: 10px; padding: 5px;">✏️</button>
                 <button class="btn-delete-item" style="color: red; border: none; background: none; font-size: 16px; padding: 5px;">❌</button>
             </div>
         `;
