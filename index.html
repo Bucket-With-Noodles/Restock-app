@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Critical for mobile: prevents zooming and scales correctly -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- iOS PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Shop Restock</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SCREEN 1: Location Selection -->
+<!-- This is the first thing the user sees -->
+<div id="screen-location" class="screen active">
+    <div class="location-container">
+        <h1>Select Location</h1>
+        <button class="btn-location" data-location="aarschot">Aarschot</button>
+        <button class="btn-location" data-location="mechelen">Mechelen</button>
+    </div>
+</div>
+
+<!-- SCREEN 2: Main App Shell -->
+<!-- Hidden until a location is clicked -->
+<div id="screen-app" class="screen hidden">
+
+    <!-- Top Bar -->
+    <header>
+        <button id="btn-back" class="hidden">← Back</button>
+        <h2 id="header-title">Fridges</h2>
+    </header>
+
+    <!-- Scrollable Content Area -->
+    <main id="app-content">
+
+        <!-- VIEW A: Fridges Overview -->
+        <section id="view-fridges" class="view active">
+            <div class="header-actions">
+                <h3>All Fridges</h3>
+                <button id="btn-add-fridge" class="btn-small">+ Add</button>
+            </div>
+            <ul id="fridge-list" class="item-list">
+                <!-- JavaScript will inject fridges here -->
+            </ul>
+        </section>
+
+        <!-- VIEW B: Inside a Specific Fridge (Hidden initially) -->
+        <section id="view-fridge-detail" class="view hidden">
+            <div class="header-actions">
+                <h3 id="current-fridge-name">Fridge Name</h3>
+                <button id="btn-add-item" class="btn-small">+ Add Item</button>
+            </div>
+            <ul id="item-list" class="item-list">
+                <!-- JavaScript will inject drinks/juices here -->
+            </ul>
+        </section>
+
+        <!-- VIEW C: Current Master List (Hidden initially) -->
+        <section id="view-current-list" class="view hidden">
+            <h3>To Buy - <span id="list-location-label"></span></h3>
+            <p class="text-muted" id="list-date"></p>
+            <ul id="master-list" class="item-list">
+                <!-- JavaScript will inject the selected items here -->
+            </ul>
+        </section>
+
+        <!-- VIEW D: History (Hidden initially) -->
+        <section id="view-history" class="view hidden">
+            <h3>Previous Lists</h3>
+            <ul id="history-list" class="item-list">
+                <!-- JavaScript will inject old lists here -->
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottom-nav">
+        <button class="nav-btn active" data-target="view-fridges">Fridges</button>
+        <button class="nav-btn" data-target="view-current-list">Current List</button>
+        <button class="nav-btn" data-target="view-history">History</button>
+    </nav>
+</div>
+
+<!-- We will link the JavaScript file later once we write it -->
+<script src="app.js"></script>
+</body>
+</html>
