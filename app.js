@@ -3,6 +3,9 @@ let currentLocation = localStorage.getItem('lastLocation') || "";
 let currentRestockList = JSON.parse(localStorage.getItem('shopRestockList'))||[];
 let currentFridge = null;
 
+// State variables
+let itemBeingEdited = null;
+
 //{} are classes with inside an [] array
 let defaultInventory = {
     aarschot: [],
@@ -48,7 +51,33 @@ const btnSwitchLocation = document.getElementById('btn-switch-location');
 const btnExportData = document.getElementById('btn-export-data');
 const btnImportData = document.getElementById('btn-import-data');
 
+const searchItemInput = document.getElementById('search-item-input');
+const modalAddItem = document.getElementById('modal-add-item');
+const modalItemName = document.getElementById('modal-item-name');
+const modalItemPrice = document.getElementById('modal-item-price');
+const modalItemVat = document.getElementById('modal-item-vat');
+const btnSaveModalItem = document.getElementById('btn-save-modal-item');
+const btnCloseModal = document.getElementById('btn-close-modal');
+const globalItemList = document.getElementById('global-item-list');
+
+// use this map to temporarily hold the data for autofill
+let globalItemsDatabase = new Map();
+
 //3. Event Listeners
+
+// --- LIVE SEARCH LOGIC ---
+searchItemInput.addEventListener('input', (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    // Grab all the <li> elements currently inside the fridge list
+    const itemsInUI = itemListUI.querySelectorAll('li');
+
+    itemsInUI.forEach(li => {
+        const text = li.textContent.toLowerCase();
+        // If the text contains the search term, show it. Otherwise, hide it.
+        li.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
 // --- EXPORT LOGIC ---
 btnExportData.addEventListener('click', () => {
     // 1. Turn our inventory data into a beautifully formatted JSON string
@@ -216,30 +245,87 @@ btnAddFridge.addEventListener('click', () => {
     renderFridges(currentLocation);
 });
 
+// --- NEW MODAL & QUICK ADD LOGIC ---
 btnAddItem.addEventListener('click', () => {
-    // 1. Safety check: Make sure a fridge is actually open
     if (!currentFridge) return;
 
-    // 2. Ask for the details
-    const itemName = prompt("Enter the drink name (e.g., Lipton Ice Tea):");
-    if (!itemName) return;
+    // 1. Tell the app this is a NEW item, not an edit!
+    itemBeingEdited = null;
+    document.querySelector('#modal-add-item h3').textContent = "Add / Create Item";
 
-    const itemPrice = prompt("Enter the price (e.g., 2.50):");
-    if (!itemPrice) return;
+    // 2. Scan the database to populate the dropdown
+    globalItemsDatabase.clear();
+    globalItemList.innerHTML = "";
 
-    // 3. Create the new item object
-    const newItem = {
-        id: "item-" + Date.now(),
-        name: itemName,
-        // parseFloat turns a string into a decimal, toFixed(2) forces 2 decimal places
-        price: parseFloat(itemPrice.replace(',', '.')).toFixed(2)
-    };
+    for (let location in inventoryData) {
+        inventoryData[location].forEach(fridge => {
+            fridge.items.forEach(item => {
+                const lowerName = item.name.toLowerCase();
+                if (!globalItemsDatabase.has(lowerName)) {
+                    globalItemsDatabase.set(lowerName, item);
+                    let option = document.createElement('option');
+                    option.value = item.name;
+                    globalItemList.appendChild(option);
+                }
+            });
+        });
+    }
 
-    // 4. Push it into the currently open fridge
-    currentFridge.items.push(newItem);
+    // 3. Reset the modal fields to blank
+    modalItemName.value = "";
+    modalItemPrice.value = "";
+    modalItemVat.value = "6";
 
-    // 5. Save the whole inventory and redraw the screen!
+    // 4. Show the modal
+    modalAddItem.classList.remove('hidden');
+});
+
+// Auto-fill price and VAT if they select an existing item from the dropdown!
+modalItemName.addEventListener('input', (event) => {
+    const selectedName = event.target.value.toLowerCase();
+    if (globalItemsDatabase.has(selectedName)) {
+        const savedData = globalItemsDatabase.get(selectedName);
+        modalItemPrice.value = savedData.price;
+        if (savedData.vat) modalItemVat.value = savedData.vat;
+    }
+});
+
+// Cancel Button
+btnCloseModal.addEventListener('click', () => {
+    modalAddItem.classList.add('hidden');
+});
+
+// Save Button
+btnSaveModalItem.addEventListener('click', () => {
+    const name = modalItemName.value.trim();
+    const priceText = modalItemPrice.value.replace(',', '.');
+    const price = parseFloat(priceText).toFixed(2);
+    const vat = modalItemVat.value;
+
+    if (!name || isNaN(price)) {
+        alert("Please enter a valid name and price.");
+        return;
+    }
+
+    if (itemBeingEdited) {
+        // WE ARE EDITING: Just update the existing item's properties
+        itemBeingEdited.name = name;
+        itemBeingEdited.price = price;
+        itemBeingEdited.vat = vat;
+    } else {
+        // WE ARE ADDING: Create a brand new item
+        const newItem = {
+            id: "item-" + Date.now(),
+            name: name,
+            price: price,
+            vat: vat
+        };
+        currentFridge.items.push(newItem);
+    }
+
+    // Save and redraw the screen!
     saveInventoryLocally();
+    modalAddItem.classList.add('hidden');
     openFridge(currentFridge);
 });
 
@@ -265,6 +351,7 @@ btnFinishList.addEventListener('click', () => {
     if (historyData.length > 5) {
         historyData.pop();
     }
+
 
     // 4. Clear the current list
     currentRestockList = [];
@@ -337,57 +424,67 @@ function openFridge(fridge) {
     viewFridgeDetail.classList.add('active');
     btnBack.classList.remove('hidden');
 
-    // 5. Clear the old items out of the UI list just in case
-    // Inside your openFridge function:
+    // 2. Clear the old items out of the UI list just in case
     itemListUI.innerHTML = "";
 
+    // 3. Loop through the items and display them
     fridge.items.forEach(item => {
         let li = document.createElement("li");
         li.className = 'fridge-item-btn';
 
+        // Display the VAT next to the price (with a fallback if older items don't have it)
+        const vatDisplay = item.vat ? ` (${item.vat}%)` : "";
+
         li.innerHTML = `
-            <span>${item.name} - €${item.price}</span>
-            <button class="btn-delete-item" style="float: right; color: red;">X</button>
+            <span>${item.name} - €${item.price}${vatDisplay}</span>
+            <div style="float: right;">
+                <button class="btn-edit-item" style="color: #007bff; border: none; background: none; font-size: 16px; margin-right: 15px; padding: 5px;">✏️</button>
+                <button class="btn-delete-item" style="color: red; border: none; background: none; font-size: 16px; padding: 5px;">❌</button>
+            </div>
         `;
 
         li.addEventListener('click', () => {
-
-            // 1. Search the master list to see if an item with this ID already exists
-            // This reads as: "Find a listItem where the listItem's ID matches the clicked item's ID"
+            // Search the master list to see if an item with this ID already exists
             let existingItem = currentRestockList.find(listItem => listItem.id === item.id);
 
             if (existingItem) {
-                // 2. The item is already in the list! Just increase its quantity property by 1.
                 existingItem.quantity += 1;
-
             } else {
-                // 4. It's not in the list yet. Create a new 'quantity' property on the item and set it to 1.
                 item.quantity = 1;
                 currentRestockList.push(item);
             }
 
-            // 2. Update the UI safely by targeting ONLY the span, leaving the X button alone!
+            // Update the UI safely by targeting ONLY the span, leaving the X button alone
             li.querySelector('span').textContent = "✅ " + (existingItem ? existingItem.quantity : 1) + "x " + item.name;
             li.classList.add('selected');
 
-            // Print to console to verify!
-            console.log(currentRestockList);
             saveListLocally();
-
         });
 
+        // 2. EDIT LOGIC
+        const editBtn = li.querySelector('.btn-edit-item');
+        editBtn.addEventListener('click', (event) => {
+            event.stopPropagation(); // Don't add to list!
+
+            // Tell the app which item we are targeting
+            itemBeingEdited = item;
+
+            // Change the title and fill the inputs with the current data
+            document.querySelector('#modal-add-item h3').textContent = "Edit Item";
+            modalItemName.value = item.name;
+            modalItemPrice.value = item.price;
+            modalItemVat.value = item.vat || "6";
+
+            // Pop open the modal
+            modalAddItem.classList.remove('hidden');
+        });
+
+        // 3. DELETE LOGIC
         const deleteBtn = li.querySelector('.btn-delete-item');
         deleteBtn.addEventListener('click', (event) => {
-
-            //Prevents adding the item to the shopping list
             event.stopPropagation();
-
-            if (confirm(`Delete
-            ${item.name} from this fridge permanently?`)) {
-                // Filter it out of the current fridge's items array
+            if (confirm(`Delete ${item.name} from this fridge permanently?`)) {
                 currentFridge.items = currentFridge.items.filter(i => i.id !== item.id);
-
-                // Save and redraw
                 saveInventoryLocally();
                 openFridge(currentFridge);
             }
@@ -395,7 +492,6 @@ function openFridge(fridge) {
 
         itemListUI.appendChild(li);
     });
-
 }
 
 function renderCurrentList() {

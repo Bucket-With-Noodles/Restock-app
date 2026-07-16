@@ -67,13 +67,36 @@
 
         <!-- VIEW B: Inside a Specific Fridge (Hidden initially) -->
         <section id="view-fridge-detail" class="view hidden">
-            <div class="header-actions">
-                <h3 id="current-fridge-name">Fridge Name</h3>
-                <button id="btn-add-item" class="btn-small">+ Add Item</button>
+            <h2 id="current-fridge-name" style="text-align: center; margin-bottom: 15px;"></h2>
+
+            <input type="text" id="search-item-input" placeholder="🔍 Search items in this fridge..." style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
+
+            <button id="btn-add-item" style="margin-bottom: 15px; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; width: 100%; font-size: 16px;">
+                ➕ Add Item
+            </button>
+
+            <ul id="item-list" class="item-list"></ul>
+
+            <div id="modal-add-item" class="hidden" style="position: fixed; top: 10%; left: 5%; width: 90%; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 100;">
+                <h3 style="margin-top: 0;">Add / Create Item</h3>
+
+                <label style="font-size: 14px; font-weight: bold;">Name (Type to search existing):</label>
+                <input type="text" id="modal-item-name" list="global-item-list" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="e.g., Lipton Ice Tea">
+                <datalist id="global-item-list"></datalist>
+
+                <label style="font-size: 14px; font-weight: bold;">Price (€):</label>
+                <input type="number" id="modal-item-price" step="0.01" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="2.50">
+
+                <label style="font-size: 14px; font-weight: bold;">VAT Level:</label>
+                <select id="modal-item-vat" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="6">6% (Food / Non-Alc)</option>
+                    <option value="21">21% (Alcohol / Misc)</option>
+                    <option value="0">0% (Exceptions)</option>
+                </select>
+
+                <button id="btn-save-modal-item" style="width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; margin-bottom: 10px; font-size: 16px;">Save Item</button>
+                <button id="btn-close-modal" style="width: 100%; padding: 10px; background: #dc3545; color: white; border: none; border-radius: 5px; font-size: 16px;">Cancel</button>
             </div>
-            <ul id="item-list" class="item-list">
-                <!-- JavaScript will inject drinks/juices here -->
-            </ul>
         </section>
 
         <!-- VIEW C: Current Master List (Hidden initially) -->
